@@ -16,6 +16,50 @@
       color: #fff;
       overflow-x: hidden;
     }
+
+    /* Loading Screen - Netflix-style pulsing red bar */
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 1s ease-out;
+    }
+    .loader {
+      width: 300px;
+      height: 20px;
+      background: rgba(229, 9, 20, 0.3);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loader::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #e50914, transparent);
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Main content initially hidden */
+    #main-content {
+      opacity: 0;
+      transition: opacity 1s ease-in;
+    }
+    #main-content.loaded {
+      opacity: 1;
+    }
+
     /* Netflix-style Navbar */
     .navbar {
       position: fixed;
@@ -392,155 +436,164 @@
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <div class="navbar" id="navbar">
-    <div class="logo">
-      <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix">
-    </div>
-    <div class="nav-center">
-      <div class="categories">
-        <a onclick="scrollToRow('movies-list')">Trending Movies</a>
-        <a onclick="scrollToRow('tvshows-list')">Trending Shows</a>
-        <a onclick="scrollToRow('netflix-list')">Netflix</a>
-        <a onclick="scrollToRow('disney-list')">Disney</a>
-        <a onclick="scrollToRow('marvel-list')">Marvel</a>
-        <a onclick="scrollToRow('kdrama-list')">K-Drama</a>
-        <a onclick="scrollToRow('anime-list')">Anime</a>
-        <a onclick="scrollToRow('thriller-list')">Thriller</a>
-        <a onclick="scrollToRow('horror-list')">Horror</a>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Navbar -->
+    <div class="navbar" id="navbar">
+      <div class="logo">
+        <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix">
+      </div>
+      <div class="nav-center">
+        <div class="categories">
+          <a onclick="scrollToRow('movies-list')">Trending Movies</a>
+          <a onclick="scrollToRow('tvshows-list')">Trending Shows</a>
+          <a onclick="scrollToRow('netflix-list')">Netflix</a>
+          <a onclick="scrollToRow('disney-list')">Disney</a>
+          <a onclick="scrollToRow('marvel-list')">Marvel</a>
+          <a onclick="scrollToRow('kdrama-list')">K-Drama</a>
+          <a onclick="scrollToRow('anime-list')">Anime</a>
+          <a onclick="scrollToRow('thriller-list')">Thriller</a>
+          <a onclick="scrollToRow('horror-list')">Horror</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <input type="text" placeholder="Search..." onfocus="openSearchModal()">
       </div>
     </div>
-    <div class="nav-right">
-      <input type="text" placeholder="Search..." onfocus="openSearchModal()">
-    </div>
-  </div>
-  <!-- Hero Banner -->
-  <div class="banner" id="banner">
-    <div class="banner-content">
-      <h1 class="banner-title" id="banner-title"></h1>
-      <p class="banner-description" id="banner-description"></p>
-      <div class="banner-buttons">
-        <button class="play-btn" onclick="playFeatured()"><i class="fas fa-play"></i> Play</button>
+    <!-- Hero Banner -->
+    <div class="banner" id="banner">
+      <div class="banner-content">
+        <h1 class="banner-title" id="banner-title"></h1>
+        <p class="banner-description" id="banner-description"></p>
+        <div class="banner-buttons">
+          <button class="play-btn" onclick="playFeatured()"><i class="fas fa-play"></i> Play</button>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- Rows -->
-  <div class="row">
-    <h2>Trending Movies</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('movies-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="movies-list"></div>
-      <div class="scroll-right" onclick="scrollRow('movies-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <div class="row">
-    <h2>Trending TV Shows</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('tvshows-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="tvshows-list"></div>
-      <div class="scroll-right" onclick="scrollRow('tvshows-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <!-- Netflix Shows Row -->
-  <div class="row">
-    <h2>Netflix Shows</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('netflix-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="netflix-list"></div>
-      <div class="scroll-right" onclick="scrollRow('netflix-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <!-- Disney Shows Row -->
-  <div class="row">
-    <h2>Disney Shows</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('disney-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="disney-list"></div>
-      <div class="scroll-right" onclick="scrollRow('disney-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <!-- Marvel Movies Row -->
-  <div class="row">
-    <h2>Marvel Movies</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('marvel-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="marvel-list"></div>
-      <div class="scroll-right" onclick="scrollRow('marvel-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <!-- New K-Drama Row -->
-  <div class="row">
-    <h2>K-Drama</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('kdrama-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="kdrama-list"></div>
-      <div class="scroll-right" onclick="scrollRow('kdrama-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <div class="row">
-    <h2>Trending Anime</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('anime-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="anime-list"></div>
-      <div class="scroll-right" onclick="scrollRow('anime-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <div class="row">
-    <h2>Thriller Movies</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('thriller-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="thriller-list"></div>
-      <div class="scroll-right" onclick="scrollRow('thriller-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <div class="row">
-    <h2>Horror Movies</h2>
-    <div class="row-container">
-      <div class="scroll-left" onclick="scrollRow('horror-list', -400)"><i class="fas fa-chevron-left"></i></div>
-      <div class="list" id="horror-list"></div>
-      <div class="scroll-right" onclick="scrollRow('horror-list', 400)"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </div>
-  <!-- Player Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">×</span>
-      <div class="modal-video-wrapper">
-        <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
-      </div>
-      <div class="modal-info">
-        <h2 class="modal-title" id="modal-title"></h2>
-      <div class="stars" id="modal-rating"></div>
-        <p class="modal-description" id="modal-description"></p>
+    <!-- Rows -->
+    <div class="row">
+      <h2>Trending Movies</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('movies-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="movies-list"></div>
+        <div class="scroll-right" onclick="scrollRow('movies-list', 400)"><i class="fas fa-chevron-right"></i></div>
       </div>
     </div>
-  </div>
-  <!-- Search Modal (Redesigned) -->
-  <div class="search-modal" id="search-modal">
-    <div class="search-header">
-      <span class="close" onclick="closeSearchModal()">×</span>
-      <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
-    </div>
-    <div class="search-content">
-      <div class="search-row" id="suggested-row">
-        <h2>Popular Searches</h2>
-        <div class="search-results" id="popular-searches"></div>
-      </div>
-      <div class="search-row" id="results-row" style="display:none;">
-        <h2 id="results-title">Search Results</h2>
-        <div class="search-results" id="search-results"></div>
+    <div class="row">
+      <h2>Trending TV Shows</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('tvshows-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="tvshows-list"></div>
+        <div class="scroll-right" onclick="scrollRow('tvshows-list', 400)"><i class="fas fa-chevron-right"></i></div>
       </div>
     </div>
+    <!-- Netflix Shows Row -->
+    <div class="row">
+      <h2>Netflix Shows</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('netflix-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="netflix-list"></div>
+        <div class="scroll-right" onclick="scrollRow('netflix-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <!-- Disney Shows Row -->
+    <div class="row">
+      <h2>Disney Shows</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('disney-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="disney-list"></div>
+        <div class="scroll-right" onclick="scrollRow('disney-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <!-- Marvel Movies Row -->
+    <div class="row">
+      <h2>Marvel Movies</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('marvel-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="marvel-list"></div>
+        <div class="scroll-right" onclick="scrollRow('marvel-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <!-- New K-Drama Row -->
+    <div class="row">
+      <h2>K-Drama</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('kdrama-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="kdrama-list"></div>
+        <div class="scroll-right" onclick="scrollRow('kdrama-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <div class="row">
+      <h2>Trending Anime</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('anime-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="anime-list"></div>
+        <div class="scroll-right" onclick="scrollRow('anime-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <div class="row">
+      <h2>Thriller Movies</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('thriller-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="thriller-list"></div>
+        <div class="scroll-right" onclick="scrollRow('thriller-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <div class="row">
+      <h2>Horror Movies</h2>
+      <div class="row-container">
+        <div class="scroll-left" onclick="scrollRow('horror-list', -400)"><i class="fas fa-chevron-left"></i></div>
+        <div class="list" id="horror-list"></div>
+        <div class="scroll-right" onclick="scrollRow('horror-list', 400)"><i class="fas fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <!-- Player Modal -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">×</span>
+        <div class="modal-video-wrapper">
+          <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
+        </div>
+        <div class="modal-info">
+          <h2 class="modal-title" id="modal-title"></h2>
+        <div class="stars" id="modal-rating"></div>
+          <p class="modal-description" id="modal-description"></p>
+        </div>
+      </div>
+    </div>
+    <!-- Search Modal (Redesigned) -->
+    <div class="search-modal" id="search-modal">
+      <div class="search-header">
+        <span class="close" onclick="closeSearchModal()">×</span>
+        <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
+      </div>
+      <div class="search-content">
+        <div class="search-row" id="suggested-row">
+          <h2>Popular Searches</h2>
+          <div class="search-results" id="popular-searches"></div>
+        </div>
+        <div class="search-row" id="results-row" style="display:none;">
+          <h2 id="results-title">Search Results</h2>
+          <div class="search-results" id="search-results"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; DailyFlix 2025. All rights reserved.</p>
+    </footer>
   </div>
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; DailyFlix 2025. All rights reserved.</p>
-  </footer>
+
   <script>
     const API_KEY = 'a1e72fd93ed59f56e6332813b9f8dcae';
     const BASE_URL = 'https://api.themoviedb.org/3';
-    const IMG_POSTER = 'https://image.tmdb.org/t/p/w342';  // Smaller posters (~200-300KB vs original ~1-2MB)
-    const IMG_BACKDROP = 'https://image.tmdb.org/t/p/w1280';  // Good quality for banner, smaller than original
+    const IMG_POSTER = 'https://image.tmdb.org/t/p/w342';
+    const IMG_BACKDROP = 'https://image.tmdb.org/t/p/w1280';
     let currentItem;
     let featuredItem;
 
@@ -557,7 +610,7 @@
 
     async function fetchTrending(type) {
       const res = await fetch(`${BASE_URL}/trending/${type}/week?api_key=${API_KEY}`);
-      return (await res.json()).results.slice(0, 30);  // Limit to ~30 items per row
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchTrendingAnime() {
@@ -613,7 +666,7 @@
       wrapper.className = 'poster-wrapper';
 
       const img = document.createElement('img');
-      img.loading = 'lazy';  // Native lazy loading
+      img.loading = 'lazy';
       img.src = `${IMG_POSTER}${item.poster_path}`;
       img.alt = item.title || item.name;
       img.onclick = () => clickHandler(item);
@@ -706,7 +759,7 @@
     }
 
     async function init() {
-      // Load essential data first (hero + trending rows)
+      // Load essential data first
       const [movies, tv] = await Promise.all([
         fetchTrending('movie'),
         fetchTrending('tv')
@@ -717,8 +770,8 @@
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
 
-      // Load other rows in background (non-blocking)
-      Promise.all([
+      // Load remaining rows in background
+      const [anime, thrillers, horrors, netflixShows, disneyShows, marvelMovies, kdramas] = await Promise.all([
         fetchTrendingAnime(),
         fetchThrillerMovies(),
         fetchHorrorMovies(),
@@ -726,16 +779,25 @@
         fetchDisneyShows(),
         fetchMarvelMovies(),
         fetchKDrama()
-      ]).then(([anime, thrillers, horrors, netflixShows, disneyShows, marvelMovies, kdramas]) => {
-        displayList(anime, 'anime-list');
-        displayList(thrillers, 'thriller-list');
-        displayList(horrors, 'horror-list');
-        displayList(netflixShows, 'netflix-list');
-        displayList(disneyShows, 'disney-list');
-        displayList(marvelMovies, 'marvel-list');
-        displayList(kdramas, 'kdrama-list');
-      });
+      ]);
 
+      displayList(anime, 'anime-list');
+      displayList(thrillers, 'thriller-list');
+      displayList(horrors, 'horror-list');
+      displayList(netflixShows, 'netflix-list');
+      displayList(disneyShows, 'disney-list');
+      displayList(marvelMovies, 'marvel-list');
+      displayList(kdramas, 'kdrama-list');
+
+      // Everything loaded - hide loader and show content
+      document.getElementById('loading-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+      }, 1000);
+
+      document.getElementById('main-content').classList.add('loaded');
+
+      // Navbar scroll effect
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
