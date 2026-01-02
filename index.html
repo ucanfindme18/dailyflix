@@ -220,43 +220,82 @@
       max-width: 800px;
       color: #ccc;
     }
-    /* Search Modal */
+    /* Search Modal - Redesigned to be more Netflix-like */
     .search-modal {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95);
+      background: #000;
       display: none;
       flex-direction: column;
-      align-items: center;
-      padding-top: 100px;
       z-index: 1500;
+      padding: 80px 4% 40px;
+      overflow-y: auto;
+    }
+    .search-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+      width: 100%;
+      max-width: 1200px;
+      align-self: center;
+    }
+    .search-header .close {
+      position: static;
+      margin-right: 20px;
+      background: transparent;
     }
     .search-modal input {
-      width: 90%;
-      max-width: 600px;
-      padding: 15px;
-      font-size: 1.2rem;
+      flex: 1;
+      padding: 15px 20px;
+      font-size: 1.8rem;
       border: none;
-      border-radius: 6px;
-      background: #333;
+      background: transparent;
       color: white;
-      margin-bottom: 30px;
+      border-bottom: 2px solid #fff;
     }
-    .search-modal .results {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 15px;
-      width: 90%;
-      max-width: 1200px;
+    .search-modal input::placeholder {
+      color: #aaa;
     }
-    .search-modal img {
+    .search-modal input:focus {
+      outline: none;
+      border-bottom-color: #e50914;
+    }
+    .search-content {
       width: 100%;
+      max-width: 1200px;
+      align-self: center;
+    }
+    .search-row {
+      margin-bottom: 40px;
+    }
+    .search-row h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .search-results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+    .search-results img {
+      width: 220px;
+      height: 330px;
+      object-fit: cover;
       border-radius: 6px;
       cursor: pointer;
       transition: transform 0.3s;
     }
-    .search-modal img:hover { transform: scale(1.1); }
+    .search-results img:hover {
+      transform: scale(1.08);
+    }
+    .no-results {
+      font-size: 1.5rem;
+      color: #aaa;
+      text-align: center;
+      padding: 50px;
+    }
     /* Footer */
     .footer {
       background: #000;
@@ -279,6 +318,8 @@
       .modal-title { font-size: 2rem; }
       .modal-info { padding: 20px; }
       .modal-description { font-size: 1rem; }
+      .search-modal input { font-size: 1.4rem; }
+      .search-results img { width: 150px; height: 225px; }
     }
   </style>
 </head>
@@ -341,11 +382,24 @@
       </div>
     </div>
   </div>
-  <!-- Search Modal -->
+  <!-- Search Modal (Redesigned) -->
   <div class="search-modal" id="search-modal">
-    <span class="close" onclick="closeSearchModal()">×</span>
-    <input type="text" id="search-input" placeholder="Search movies, TV shows..." oninput="searchTMDB()" />
-    <div class="results" id="search-results"></div>
+    <div class="search-header">
+      <span class="close" onclick="closeSearchModal()">×</span>
+      <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
+    </div>
+    <div class="search-content">
+      <!-- Suggested when empty -->
+      <div class="search-row" id="suggested-row">
+        <h2>Popular Searches</h2>
+        <div class="search-results" id="popular-searches"></div>
+      </div>
+      <!-- Search results -->
+      <div class="search-row" id="results-row" style="display:none;">
+        <h2 id="results-title">Search Results</h2>
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
   </div>
   <!-- Footer -->
   <footer class="footer">
@@ -396,6 +450,21 @@
         container.appendChild(img);
       });
     }
+    function displaySearchResults(items, container) {
+      container.innerHTML = '';
+      if (items.length === 0) {
+        container.innerHTML = '<p class="no-results">No results found.</p>';
+        return;
+      }
+      items.forEach(item => {
+        if (!item.poster_path) return;
+        const img = document.createElement('img');
+        img.src = `${IMG_URL}${item.poster_path}`;
+        img.alt = item.title || item.name;
+        img.onclick = () => { closeSearchModal(); showDetails(item); };
+        container.appendChild(img);
+      });
+    }
     function showDetails(item) {
       currentItem = item;
       document.getElementById('modal-title').textContent = item.title || item.name;
@@ -411,9 +480,18 @@
       document.getElementById('modal').style.display = 'none';
       document.getElementById('modal-video').src = '';
     }
-    function openSearchModal() {
+    async function openSearchModal() {
       document.getElementById('search-modal').style.display = 'flex';
       document.getElementById('search-input').focus();
+      document.getElementById('search-input').value = '';
+      document.getElementById('results-row').style.display = 'none';
+      document.getElementById('suggested-row').style.display = 'block';
+
+      // Load popular suggestions (trending mix)
+      const movies = await fetchTrending('movie');
+      const tv = await fetchTrending('tv');
+      const popular = [...movies.slice(0,10), ...tv.slice(0,10)];
+      displaySearchResults(popular, document.getElementById('popular-searches'));
     }
     function closeSearchModal() {
       document.getElementById('search-modal').style.display = 'none';
@@ -421,18 +499,23 @@
     }
     async function searchTMDB() {
       const query = document.getElementById('search-input').value.trim();
-      if (!query) return;
-      const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${query}`);
+      const resultsContainer = document.getElementById('search-results');
+      const resultsRow = document.getElementById('results-row');
+      const suggestedRow = document.getElementById('suggested-row');
+
+      if (!query) {
+        resultsRow.style.display = 'none';
+        suggestedRow.style.display = 'block';
+        return;
+      }
+
+      const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
       const data = await res.json();
-      const container = document.getElementById('search-results');
-      container.innerHTML = '';
-      data.results.forEach(item => {
-        if (!item.poster_path) return;
-        const img = document.createElement('img');
-        img.src = `${IMG_URL}${item.poster_path}`;
-        img.onclick = () => { closeSearchModal(); showDetails(item); };
-        container.appendChild(img);
-      });
+
+      document.getElementById('results-title').textContent = `Results for "${query}"`;
+      displaySearchResults(data.results, resultsContainer);
+      resultsRow.style.display = 'block';
+      suggestedRow.style.display = 'none';
     }
     async function init() {
       const movies = await fetchTrending('movie');
@@ -446,6 +529,9 @@
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
+
+      // Attach search input listener
+      document.getElementById('search-input').addEventListener('input', searchTMDB);
     }
     init();
   </script>
