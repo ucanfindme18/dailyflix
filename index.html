@@ -539,7 +539,8 @@
   <script>
     const API_KEY = 'a1e72fd93ed59f56e6332813b9f8dcae';
     const BASE_URL = 'https://api.themoviedb.org/3';
-    const IMG_URL = 'https://image.tmdb.org/t/p/original';
+    const IMG_POSTER = 'https://image.tmdb.org/t/p/w342';  // Smaller posters (~200-300KB vs original ~1-2MB)
+    const IMG_BACKDROP = 'https://image.tmdb.org/t/p/w1280';  // Good quality for banner, smaller than original
     let currentItem;
     let featuredItem;
 
@@ -556,81 +557,47 @@
 
     async function fetchTrending(type) {
       const res = await fetch(`${BASE_URL}/trending/${type}/week?api_key=${API_KEY}`);
-      return (await res.json()).results;
+      return (await res.json()).results.slice(0, 30);  // Limit to ~30 items per row
     }
 
     async function fetchTrendingAnime() {
-      let all = [];
-      for (let p = 1; p <= 3; p++) {
-        const res = await fetch(`${BASE_URL}/trending/tv/week?api_key=${API_KEY}&page=${p}`);
-        const data = await res.json();
-        all.push(...data.results.filter(i => i.original_language === 'ja' && i.genre_ids.includes(16)));
-      }
-      return all;
+      const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_original_language=ja&include_null_original_language=false&with_genres=16&sort_by=popularity.desc`);
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchThrillerMovies() {
       const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=53&sort_by=vote_average.desc&vote_count.gte=100`);
-      return (await res.json()).results;
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchHorrorMovies() {
       const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=vote_average.desc&vote_count.gte=100`);
-      return (await res.json()).results;
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchNetflixShows() {
-      let allShows = [];
-      const maxPages = 20;
-      for (let page = 1; page <= maxPages; page++) {
-        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=213&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
-        const data = await res.json();
-        if (data.results.length === 0) break;
-        allShows.push(...data.results);
-      }
-      return allShows;
+      const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=213&sort_by=popularity.desc`);
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchDisneyShows() {
-      let allShows = [];
-      const maxPages = 20;
-      for (let page = 1; page <= maxPages; page++) {
-        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=2739&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
-        const data = await res.json();
-        if (data.results.length === 0) break;
-        allShows.push(...data.results);
-      }
-      return allShows;
+      const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=2739&sort_by=popularity.desc`);
+      return (await res.json()).results.slice(0, 30);
     }
 
     async function fetchMarvelMovies() {
-      let allMovies = [];
-      const maxPages = 10;
-      for (let page = 1; page <= maxPages; page++) {
-        const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_keywords=180547&sort_by=release_date.desc&vote_count.gte=100&page=${page}`);
-        const data = await res.json();
-        if (data.results.length === 0) break;
-        allMovies.push(...data.results);
-      }
-      return allMovies;
+      const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_keywords=180547&sort_by=popularity.desc`);
+      return (await res.json()).results.slice(0, 30);
     }
 
-    // New function for K-Drama (Korean TV shows)
     async function fetchKDrama() {
-      let all = [];
-      const maxPages = 20;
-      for (let page = 1; page <= maxPages; page++) {
-        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_original_language=ko&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
-        const data = await res.json();
-        if (data.results.length === 0) break;
-        all.push(...data.results);
-      }
-      return all;
+      const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_original_language=ko&sort_by=popularity.desc`);
+      return (await res.json()).results.slice(0, 30);
     }
 
     function displayBanner(item) {
       featuredItem = item;
-      document.getElementById('banner').style.backgroundImage = `url(${IMG_URL}${item.backdrop_path})`;
+      document.getElementById('banner').style.backgroundImage = `url(${IMG_BACKDROP}${item.backdrop_path})`;
       document.getElementById('banner-title').textContent = item.title || item.name;
       document.getElementById('banner-description').textContent = (item.overview || '').slice(0, 200) + (item.overview?.length > 200 ? '...' : '');
     }
@@ -646,7 +613,8 @@
       wrapper.className = 'poster-wrapper';
 
       const img = document.createElement('img');
-      img.src = `${IMG_URL}${item.poster_path}`;
+      img.loading = 'lazy';  // Native lazy loading
+      img.src = `${IMG_POSTER}${item.poster_path}`;
       img.alt = item.title || item.name;
       img.onclick = () => clickHandler(item);
       wrapper.appendChild(img);
@@ -665,8 +633,10 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       items.forEach(item => {
-        const poster = createPoster(item, showDetails);
-        container.appendChild(poster);
+        if (item.poster_path) {
+          const poster = createPoster(item, showDetails);
+          container.appendChild(poster);
+        }
       });
     }
 
@@ -736,27 +706,35 @@
     }
 
     async function init() {
-      const movies = await fetchTrending('movie');
-      const tv = await fetchTrending('tv');
-      const anime = await fetchTrendingAnime();
-      const thrillers = await fetchThrillerMovies();
-      const horrors = await fetchHorrorMovies();
-      const netflixShows = await fetchNetflixShows();
-      const disneyShows = await fetchDisneyShows();
-      const marvelMovies = await fetchMarvelMovies();
-      const kdramas = await fetchKDrama();
+      // Load essential data first (hero + trending rows)
+      const [movies, tv] = await Promise.all([
+        fetchTrending('movie'),
+        fetchTrending('tv')
+      ]);
 
       const randomMovie = movies[Math.floor(Math.random() * movies.length)];
       displayBanner(randomMovie);
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
-      displayList(netflixShows, 'netflix-list');
-      displayList(disneyShows, 'disney-list');
-      displayList(marvelMovies, 'marvel-list');
-      displayList(kdramas, 'kdrama-list');
-      displayList(anime, 'anime-list');
-      displayList(thrillers, 'thriller-list');
-      displayList(horrors, 'horror-list');
+
+      // Load other rows in background (non-blocking)
+      Promise.all([
+        fetchTrendingAnime(),
+        fetchThrillerMovies(),
+        fetchHorrorMovies(),
+        fetchNetflixShows(),
+        fetchDisneyShows(),
+        fetchMarvelMovies(),
+        fetchKDrama()
+      ]).then(([anime, thrillers, horrors, netflixShows, disneyShows, marvelMovies, kdramas]) => {
+        displayList(anime, 'anime-list');
+        displayList(thrillers, 'thriller-list');
+        displayList(horrors, 'horror-list');
+        displayList(netflixShows, 'netflix-list');
+        displayList(disneyShows, 'disney-list');
+        displayList(marvelMovies, 'marvel-list');
+        displayList(kdramas, 'kdrama-list');
+      });
 
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
