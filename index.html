@@ -162,8 +162,8 @@
       background: #181818;
       width: 70%;
       height: 100%;
-      max-width: none; /* removed previous max-width limit */
-      max-height: none; /* removed previous max-height limit */
+      max-width: none;
+      max-height: none;
       border-radius: 10px;
       overflow: hidden;
       display: flex;
@@ -274,7 +274,7 @@
       .scroll-left, .scroll-right { display: none; }
       .modal-content {
         width: 95%;
-        height: 90vh; /* slightly reduced on mobile to avoid keyboard overlap issues */
+        height: 90vh;
       }
       .modal-title { font-size: 2rem; }
       .modal-info { padding: 20px; }
@@ -332,11 +332,11 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal()">×</span>
       <div class="modal-video-wrapper">
-        <iframe id="modal-video" frameborder="0" allowfullscreen></iframe>
+        <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
       </div>
       <div class="modal-info">
         <h2 class="modal-title" id="modal-title"></h2>
-        <div class="stars" id="modal-rating"></div>
+      <div class="stars" id="modal-rating"></div>
         <p class="modal-description" id="modal-description"></p>
       </div>
     </div>
@@ -361,12 +361,10 @@
     function scrollRow(id, amount) {
       document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
     }
-
     async function fetchTrending(type) {
       const res = await fetch(`${BASE_URL}/trending/${type}/week?api_key=${API_KEY}`);
       return (await res.json()).results;
     }
-
     async function fetchTrendingAnime() {
       let all = [];
       for (let p = 1; p <= 3; p++) {
@@ -376,20 +374,17 @@
       }
       return all;
     }
-
     function displayBanner(item) {
       featuredItem = item;
       document.getElementById('banner').style.backgroundImage = `url(${IMG_URL}${item.backdrop_path})`;
       document.getElementById('banner-title').textContent = item.title || item.name;
       document.getElementById('banner-description').textContent = (item.overview || '').slice(0, 200) + (item.overview?.length > 200 ? '...' : '');
     }
-
     function playFeatured() {
       if (featuredItem) {
         showDetails(featuredItem);
       }
     }
-
     function displayList(items, containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
@@ -401,35 +396,29 @@
         container.appendChild(img);
       });
     }
-
     function showDetails(item) {
       currentItem = item;
       document.getElementById('modal-title').textContent = item.title || item.name;
       document.getElementById('modal-description').textContent = item.overview || 'No description available.';
       document.getElementById('modal-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
-
       const type = currentItem.title ? "movie" : "tv";
       const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
-      document.getElementById('modal-video').src = url;
-
+      const iframe = document.getElementById('modal-video');
+      iframe.src = url;
       document.getElementById('modal').style.display = 'flex';
     }
-
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
       document.getElementById('modal-video').src = '';
     }
-
     function openSearchModal() {
       document.getElementById('search-modal').style.display = 'flex';
       document.getElementById('search-input').focus();
     }
-
     function closeSearchModal() {
       document.getElementById('search-modal').style.display = 'none';
       document.getElementById('search-results').innerHTML = '';
     }
-
     async function searchTMDB() {
       const query = document.getElementById('search-input').value.trim();
       if (!query) return;
@@ -445,7 +434,6 @@
         container.appendChild(img);
       });
     }
-
     async function init() {
       const movies = await fetchTrending('movie');
       const tv = await fetchTrending('tv');
@@ -459,7 +447,6 @@
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
     }
-
     init();
   </script>
 </body>
