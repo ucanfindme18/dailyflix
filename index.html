@@ -17,7 +17,7 @@
       overflow-x: hidden;
     }
 
-    /* Loading Screen - Netflix-style circular spinner with red accent */
+    /* Page Loading Screen */
     #loading-screen {
       position: fixed;
       top: 0; left: 0;
@@ -28,6 +28,20 @@
       align-items: center;
       z-index: 9999;
       transition: opacity 1s ease-out;
+    }
+
+    /* Player Loading Overlay */
+    #player-loading {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 1s ease-out;
+      pointer-events: none; /* Important: allows clicks to pass through */
     }
 
     .loader {
@@ -68,6 +82,27 @@
       transition: opacity 1s ease-in;
     }
     #main-content.loaded {
+      opacity: 1;
+    }
+
+    /* Player fade-in */
+    .modal-video-wrapper {
+      position: relative;
+      background: #000;
+      flex: 1;
+      min-height: 50%;
+      overflow: hidden;
+    }
+
+    .modal-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 1.5s ease-in;
+    }
+
+    .modal-video-wrapper iframe.loaded {
       opacity: 1;
     }
 
@@ -283,7 +318,7 @@
       font-size: 40px;
       cursor: pointer;
       color: #fff;
-      z-index: 10;
+      z-index: 110;
       background: rgba(0,0,0,0.5);
       width: 50px;
       height: 50px;
@@ -294,16 +329,6 @@
     }
     .close:hover {
       background: rgba(0,0,0,0.8);
-    }
-    .modal-video-wrapper {
-      flex: 1;
-      background: #000;
-      min-height: 50%;
-    }
-    .modal-video-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
     }
     .modal-info {
       padding: 30px 40px;
@@ -447,7 +472,7 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
+  <!-- Page Loading Screen -->
   <div id="loading-screen">
     <div class="loader">
       <div class="loader-circle"></div>
@@ -571,16 +596,23 @@
       <div class="modal-content">
         <span class="close" onclick="closeModal()">×</span>
         <div class="modal-video-wrapper">
-          <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
+          <!-- Player Loading Overlay -->
+          <div id="player-loading">
+            <div class="loader">
+              <div class="loader-circle"></div>
+              <div class="loader-inner"></div>
+            </div>
+          </div>
+          <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation allow-popups allow-popups-to-escape-sandbox"></iframe>
         </div>
         <div class="modal-info">
           <h2 class="modal-title" id="modal-title"></h2>
-        <div class="stars" id="modal-rating"></div>
+          <div class="stars" id="modal-rating"></div>
           <p class="modal-description" id="modal-description"></p>
         </div>
       </div>
     </div>
-    <!-- Search Modal (Redesigned) -->
+    <!-- Search Modal -->
     <div class="search-modal" id="search-modal">
       <div class="search-header">
         <span class="close" onclick="closeSearchModal()">×</span>
@@ -599,7 +631,7 @@
     </div>
     <!-- Footer -->
     <footer class="footer">
-      <p>&copy; DailyFlix 2025. All rights reserved.</p>
+      <p>&copy; DailyFlix 2026. All rights reserved.</p>
     </footer>
   </div>
 
@@ -725,16 +757,38 @@
       document.getElementById('modal-title').textContent = item.title || item.name;
       document.getElementById('modal-description').textContent = item.overview || 'No description available.';
       document.getElementById('modal-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
+
       const type = currentItem.title ? "movie" : "tv";
       const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
+
       const iframe = document.getElementById('modal-video');
-      iframe.src = url;
+      const playerLoading = document.getElementById('player-loading');
+
+      // Reset state
+      iframe.src = '';
+      iframe.classList.remove('loaded');
+      playerLoading.style.opacity = '1';
+
+      // Show modal
       document.getElementById('modal').style.display = 'flex';
+
+      // Load new source
+      iframe.src = url;
+
+      // When iframe loads, fade out loader and fade in player
+      iframe.onload = () => {
+        playerLoading.style.opacity = '0';
+        setTimeout(() => {
+          iframe.classList.add('loaded');
+        }, 300);
+      };
     }
 
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
-      document.getElementById('modal-video').src = '';
+      const iframe = document.getElementById('modal-video');
+      iframe.src = '';
+      iframe.classList.remove('loaded');
     }
 
     async function openSearchModal() {
@@ -773,7 +827,6 @@
     }
 
     async function init() {
-      // Load essential data first
       const [movies, tv] = await Promise.all([
         fetchTrending('movie'),
         fetchTrending('tv')
@@ -784,7 +837,6 @@
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
 
-      // Load remaining rows in background
       const [anime, thrillers, horrors, netflixShows, disneyShows, marvelMovies, kdramas] = await Promise.all([
         fetchTrendingAnime(),
         fetchThrillerMovies(),
@@ -803,7 +855,7 @@
       displayList(marvelMovies, 'marvel-list');
       displayList(kdramas, 'kdrama-list');
 
-      // Everything loaded - hide loader and show content
+      // Hide page loader
       document.getElementById('loading-screen').style.opacity = '0';
       setTimeout(() => {
         document.getElementById('loading-screen').style.display = 'none';
@@ -811,7 +863,6 @@
 
       document.getElementById('main-content').classList.add('loaded');
 
-      // Navbar scroll effect
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
