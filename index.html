@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5182507521690531"
-     crossorigin="anonymous"></script>
   <title>DailyFlix</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5182507521690531"
+     crossorigin="anonymous"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -15,7 +15,6 @@
       color: #fff;
       overflow-x: hidden;
     }
-
     /* Netflix-style Navbar */
     .navbar {
       position: fixed;
@@ -33,7 +32,7 @@
     }
     .navbar.scrolled { background: #000; }
     .logo img { height: 40px; }
-    .nav-links { display: buttom; gap: 20px; padding:5px;}
+    .nav-links { display: flex; gap: 20px; align-items: center; }
     .nav-links a {
       color: #e5e5e5;
       text-decoration: none;
@@ -41,7 +40,6 @@
       font-weight: 500;
     }
     .nav-links a:hover { color: #fff; }
-
     /* Hero Banner (Netflix style) */
     .banner {
       height: 65vh;
@@ -83,11 +81,13 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
     .play-btn { background: #fff; color: #000; }
     .play-btn:hover { background: #e6e6e6; }
-    .info-btn { background: rgba(109,109,110,0.7); color: #fff; }
-
+    .play-btn i { font-size: 1.5rem; }
     /* Rows */
     .row {
       margin: 30px 0;
@@ -122,7 +122,6 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       z-index: 10;
     }
-
     /* Scroll Arrows */
     .scroll-left, .scroll-right {
       position: absolute;
@@ -147,54 +146,80 @@
     .row-container:hover .scroll-left,
     .row-container:hover .scroll-right { opacity: 0.8; }
     .scroll-left:hover, .scroll-right:hover { opacity: 1; }
-
-    /* Modal (Netflix-style popup) */
+    /* Player Modal - Updated to 70% width and 100% height */
     .modal {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.95);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 20px;
     }
     .modal-content {
       background: #181818;
-      width: 90%;
-      max-width: 900px;
+      width: 70%;
+      height: 100%;
+      max-width: none; /* removed previous max-width limit */
+      max-height: none; /* removed previous max-height limit */
       border-radius: 10px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
       position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     }
-    .close { 
+    .close {
       position: absolute;
-      top: 20px; right: 20px;
+      top: 15px;
+      right: 20px;
       font-size: 40px;
       cursor: pointer;
       color: #fff;
       z-index: 10;
+      background: rgba(0,0,0,0.5);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .modal-video-wrapper { 
-      width: 100%; 
-      height: 400px; 
-      background: #000; 
+    .close:hover {
+      background: rgba(0,0,0,0.8);
+    }
+    .modal-video-wrapper {
+      flex: 1;
+      background: #000;
+      min-height: 50%;
+    }
+    .modal-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
     .modal-info {
-      padding: 30px;
+      padding: 30px 40px;
+      background: #181818;
     }
     .modal-title {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
-    .stars { font-size: 1.5rem; color: #e87d0e; }
+    .stars {
+      font-size: 1.8rem;
+      color: #e87d0e;
+      margin-bottom: 20px;
+    }
     .modal-description {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       line-height: 1.6;
-      margin-top: 20px;
+      max-width: 800px;
       color: #ccc;
     }
-
     /* Search Modal */
     .search-modal {
       position: fixed;
@@ -232,7 +257,6 @@
       transition: transform 0.3s;
     }
     .search-modal img:hover { transform: scale(1.1); }
-
     /* Footer */
     .footer {
       background: #000;
@@ -241,13 +265,6 @@
       color: #777;
       font-size: 0.9rem;
     }
-    .footer-links a {
-      color: #777;
-      margin: 0 15px;
-      text-decoration: none;
-    }
-    .footer-links a:hover { color: #fff; }
-
     /* Mobile Adjustments */
     @media (max-width: 768px) {
       .banner { height: 60vh; }
@@ -255,36 +272,36 @@
       .banner-description { font-size: 1rem; }
       .list img { width: 140px; height: 210px; }
       .scroll-left, .scroll-right { display: none; }
-      .modal-content { width: 95%; }
-      .modal-video-wrapper { height: 300px; }
-      .modal-title { font-size: 1.8rem; }
+      .modal-content {
+        width: 95%;
+        height: 90vh; /* slightly reduced on mobile to avoid keyboard overlap issues */
+      }
+      .modal-title { font-size: 2rem; }
+      .modal-info { padding: 20px; }
+      .modal-description { font-size: 1rem; }
     }
   </style>
 </head>
 <body>
-
   <!-- Navbar -->
   <div class="navbar" id="navbar">
     <div class="logo">
       <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix">
     </div>
     <div class="nav-links">
-      
       <input type="text" placeholder="Search..." onfocus="openSearchModal()" style="padding:8px 12px; border:none; border-radius:4px; background:#333; color:white; width:200px;">
     </div>
   </div>
-
   <!-- Hero Banner -->
   <div class="banner" id="banner">
     <div class="banner-content">
       <h1 class="banner-title" id="banner-title"></h1>
       <p class="banner-description" id="banner-description"></p>
       <div class="banner-buttons">
-        
+        <button class="play-btn" onclick="playFeatured()"><i class="fas fa-play"></i> Play</button>
       </div>
     </div>
   </div>
-
   <!-- Rows -->
   <div class="row">
     <h2>Trending Movies</h2>
@@ -294,7 +311,6 @@
       <div class="scroll-right" onclick="scrollRow('movies-list', 400)"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
-
   <div class="row">
     <h2>Trending TV Shows</h2>
     <div class="row-container">
@@ -303,7 +319,6 @@
       <div class="scroll-right" onclick="scrollRow('tvshows-list', 400)"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
-
   <div class="row">
     <h2>Trending Anime</h2>
     <div class="row-container">
@@ -312,48 +327,36 @@
       <div class="scroll-right" onclick="scrollRow('anime-list', 400)"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
-
-  <!-- Modal -->
+  <!-- Player Modal -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">×</span>
       <div class="modal-video-wrapper">
-        <iframe id="modal-video" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+        <iframe id="modal-video" frameborder="0" allowfullscreen></iframe>
       </div>
       <div class="modal-info">
         <h2 class="modal-title" id="modal-title"></h2>
         <div class="stars" id="modal-rating"></div>
         <p class="modal-description" id="modal-description"></p>
-        <div class="server-selector" style="margin-top:20px;">
-          <label for="server">Stream from:</label>
-          <select id="server" onchange="changeServer()">
-            <option value="vidsrc.cc">Philippines</option>
-            <option value="vidsrc.me">Singapore</option>
-            <option value="player.videasy.net">Canada</option>
-          </select>
-        </div>
       </div>
     </div>
   </div>
-
   <!-- Search Modal -->
   <div class="search-modal" id="search-modal">
     <span class="close" onclick="closeSearchModal()">×</span>
     <input type="text" id="search-input" placeholder="Search movies, TV shows..." oninput="searchTMDB()" />
     <div class="results" id="search-results"></div>
   </div>
-
   <!-- Footer -->
   <footer class="footer">
     <p>&copy; DailyFlix 2025. All rights reserved.</p>
-    
   </footer>
-
   <script>
     const API_KEY = 'a1e72fd93ed59f56e6332813b9f8dcae';
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMG_URL = 'https://image.tmdb.org/t/p/original';
     let currentItem;
+    let featuredItem;
 
     function scrollRow(id, amount) {
       document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
@@ -375,9 +378,16 @@
     }
 
     function displayBanner(item) {
+      featuredItem = item;
       document.getElementById('banner').style.backgroundImage = `url(${IMG_URL}${item.backdrop_path})`;
       document.getElementById('banner-title').textContent = item.title || item.name;
-      document.getElementById('banner-description').textContent = item.overview.slice(0, 200) + '...';
+      document.getElementById('banner-description').textContent = (item.overview || '').slice(0, 200) + (item.overview?.length > 200 ? '...' : '');
+    }
+
+    function playFeatured() {
+      if (featuredItem) {
+        showDetails(featuredItem);
+      }
     }
 
     function displayList(items, containerId) {
@@ -395,20 +405,14 @@
     function showDetails(item) {
       currentItem = item;
       document.getElementById('modal-title').textContent = item.title || item.name;
-      document.getElementById('modal-description').textContent = item.overview;
-      document.getElementById('modal-rating').innerHTML = '★'.repeat(Math.round(item.vote_average / 2));
-      changeServer();
-      document.getElementById('modal').style.display = 'flex';
-    }
+      document.getElementById('modal-description').textContent = item.overview || 'No description available.';
+      document.getElementById('modal-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
 
-    function changeServer() {
-      const server = document.getElementById('server').value;
-      const type = currentItem.media_type === "movie" ? "movie" : "tv";
-      let url = "";
-      if (server === "vidsrc.cc") url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
-      else if (server === "vidsrc.me") url = `https://vidsrc.net/embed/${type}/?tmdb=${currentItem.id}`;
-      else if (server === "player.videasy.net") url = `https://player.videasy.net/${type}/${currentItem.id}`;
+      const type = currentItem.title ? "movie" : "tv";
+      const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
       document.getElementById('modal-video').src = url;
+
+      document.getElementById('modal').style.display = 'flex';
     }
 
     function closeModal() {
@@ -446,12 +450,11 @@
       const movies = await fetchTrending('movie');
       const tv = await fetchTrending('tv');
       const anime = await fetchTrendingAnime();
-      displayBanner(movies[Math.floor(Math.random() * movies.length)]);
+      const randomMovie = movies[Math.floor(Math.random() * movies.length)];
+      displayBanner(randomMovie);
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
       displayList(anime, 'anime-list');
-
-      // Navbar scroll effect
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
@@ -460,5 +463,4 @@
     init();
   </script>
 </body>
-
 </html>
