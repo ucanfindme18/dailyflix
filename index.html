@@ -167,6 +167,8 @@
       align-items: center;
       position: relative;
       padding: 0 4%;
+      opacity: 1;
+      transition: background-image 2s ease-in-out, opacity 2s ease-in-out;
     }
     .banner::after {
       content: '';
@@ -178,6 +180,8 @@
     .banner-content {
       max-width: 650px;
       z-index: 2;
+      opacity: 1;
+      transition: opacity 2s ease-in-out;
     }
     .banner-title {
       font-size: 3.5rem;
@@ -506,7 +510,7 @@
     </div>
     <!-- Hero Banner -->
     <div class="banner" id="banner">
-      <div class="banner-content">
+      <div class="banner-content" id="banner-content">
         <h1 class="banner-title" id="banner-title"></h1>
         <p class="banner-description" id="banner-description"></p>
         <div class="banner-buttons">
@@ -642,6 +646,9 @@
     const IMG_BACKDROP = 'https://image.tmdb.org/t/p/w1280';
     let currentItem;
     let featuredItem;
+    let featuredItems = [];
+    let currentFeaturedIndex = 0;
+    let carouselInterval;
 
     function scrollRow(id, amount) {
       document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
@@ -696,10 +703,47 @@
 
     function displayBanner(item) {
       featuredItem = item;
-      document.getElementById('banner').style.backgroundImage = `url(${IMG_BACKDROP}${item.backdrop_path})`;
-      document.getElementById('banner-title').textContent = item.title || item.name;
-      document.getElementById('banner-description').textContent = (item.overview || '').slice(0, 200) + (item.overview?.length > 200 ? '...' : '');
+
+      const banner = document.getElementById('banner');
+      const content = document.getElementById('banner-content');
+
+      // Fade out
+      banner.style.opacity = '0.3';
+      content.style.opacity = '0';
+
+      setTimeout(() => {
+        banner.style.backgroundImage = `url(${IMG_BACKDROP}${item.backdrop_path || item.poster_path})`;
+        document.getElementById('banner-title').textContent = item.title || item.name || 'Untitled';
+        const overview = item.overview || '';
+        document.getElementById('banner-description').textContent = overview.slice(0, 200) + (overview.length > 200 ? '...' : '');
+
+        // Fade in
+        banner.style.opacity = '1';
+        content.style.opacity = '1';
+      }, 1000); // Half of the 2s transition time
     }
+
+    function nextFeatured() {
+      if (featuredItems.length <= 1) return;
+      currentFeaturedIndex = (currentFeaturedIndex + 1) % featuredItems.length;
+      displayBanner(featuredItems[currentFeaturedIndex]);
+    }
+
+    function startCarousel() {
+      stopCarousel(); // Clear any existing interval
+      carouselInterval = setInterval(nextFeatured, 8000); // 8 seconds
+    }
+
+    function stopCarousel() {
+      if (carouselInterval) clearInterval(carouselInterval);
+    }
+
+    // Pause carousel on hover, resume on leave
+    document.getElementById('banner').addEventListener('mouseenter', stopCarousel);
+    document.getElementById('banner').addEventListener('mouseleave', startCarousel);
+
+    // Clicking anywhere on banner restarts timer
+    document.getElementById('banner').addEventListener('click', startCarousel);
 
     function playFeatured() {
       if (featuredItem) {
@@ -764,18 +808,14 @@
       const iframe = document.getElementById('modal-video');
       const playerLoading = document.getElementById('player-loading');
 
-      // Reset state
       iframe.src = '';
       iframe.classList.remove('loaded');
       playerLoading.style.opacity = '1';
 
-      // Show modal
       document.getElementById('modal').style.display = 'flex';
 
-      // Load new source
       iframe.src = url;
 
-      // When iframe loads, fade out loader and fade in player
       iframe.onload = () => {
         playerLoading.style.opacity = '0';
         setTimeout(() => {
@@ -832,8 +872,18 @@
         fetchTrending('tv')
       ]);
 
-      const randomMovie = movies[Math.floor(Math.random() * movies.length)];
-      displayBanner(randomMovie);
+      // Prepare featured items: top 10 from trending movies and shows
+      const combinedTrending = [...movies.slice(0, 10), ...tv.slice(0, 10)];
+      featuredItems = combinedTrending.filter(item => item.backdrop_path || item.poster_path);
+
+      if (featuredItems.length > 0) {
+        currentFeaturedIndex = 0;
+        displayBanner(featuredItems[0]);
+        startCarousel();
+      } else {
+        document.getElementById('banner-title').textContent = 'Welcome to DailyFlix';
+      }
+
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
 
