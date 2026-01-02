@@ -147,7 +147,7 @@
     .row-container:hover .scroll-left,
     .row-container:hover .scroll-right { opacity: 0.8; }
     .scroll-left:hover, .scroll-right:hover { opacity: 1; }
-    /* Player Modal - Updated to 70% width and 100% height */
+    /* Player Modal */
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -221,7 +221,7 @@
       max-width: 800px;
       color: #ccc;
     }
-    /* Search Modal - Redesigned to be more Netflix-like */
+    /* Search Modal */
     .search-modal {
       position: fixed;
       top: 0; left: 0;
@@ -275,14 +275,15 @@
       margin-bottom: 20px;
     }
     .search-results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      justify-items: center;
     }
     .search-results img {
-      width: 220px;
-      height: 330px;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 2 / 3;
       object-fit: cover;
       border-radius: 6px;
       cursor: pointer;
@@ -319,8 +320,42 @@
       .modal-title { font-size: 2rem; }
       .modal-info { padding: 20px; }
       .modal-description { font-size: 1rem; }
-      .search-modal input { font-size: 1.4rem; }
-      .search-results img { width: 150px; height: 225px; }
+
+      /* Search modal specific optimizations */
+      .search-modal {
+        padding: 40px 4% 60px;
+      }
+      .search-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .search-header .close {
+        align-self: flex-end;
+        font-size: 36px;
+        margin: 0;
+      }
+      .search-modal input {
+        width: 100%;
+        font-size: 1.8rem; /* Larger for easier typing/touch */
+        padding: 15px 0;
+      }
+      .search-row h2 {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+      }
+      .search-content {
+        max-width: none;
+      }
+      .search-results {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 20px;
+      }
+      .no-results {
+        font-size: 1.3rem;
+        padding: 40px;
+      }
     }
   </style>
 </head>
@@ -412,7 +447,6 @@
     const IMG_URL = 'https://image.tmdb.org/t/p/original';
     let currentItem;
     let featuredItem;
-
     function scrollRow(id, amount) {
       document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
     }
@@ -487,7 +521,6 @@
       document.getElementById('search-input').value = '';
       document.getElementById('results-row').style.display = 'none';
       document.getElementById('suggested-row').style.display = 'block';
-
       // Load popular suggestions (trending mix)
       const movies = await fetchTrending('movie');
       const tv = await fetchTrending('tv');
@@ -503,16 +536,13 @@
       const resultsContainer = document.getElementById('search-results');
       const resultsRow = document.getElementById('results-row');
       const suggestedRow = document.getElementById('suggested-row');
-
       if (!query) {
         resultsRow.style.display = 'none';
         suggestedRow.style.display = 'block';
         return;
       }
-
       const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
       const data = await res.json();
-
       document.getElementById('results-title').textContent = `Results for "${query}"`;
       displaySearchResults(data.results, resultsContainer);
       resultsRow.style.display = 'block';
@@ -530,7 +560,6 @@
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
-
       // Attach search input listener
       document.getElementById('search-input').addEventListener('input', searchTMDB);
     }
@@ -538,4 +567,3 @@
   </script>
 </body>
 </html>
-
