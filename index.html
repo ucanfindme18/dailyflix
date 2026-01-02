@@ -33,14 +33,41 @@
     }
     .navbar.scrolled { background: #000; }
     .logo img { height: 40px; }
-    .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-links a {
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      flex: 1;
+      justify-content: center;
+    }
+    .categories {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+    }
+    .categories a {
       color: #e5e5e5;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
+      cursor: pointer;
+      transition: color 0.3s;
     }
-    .nav-links a:hover { color: #fff; }
+    .categories a:hover {
+      color: #fff;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+    .nav-right input {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background: #333;
+      color: white;
+      width: 200px;
+    }
     /* Hero Banner (Netflix style) */
     .banner {
       height: 65vh;
@@ -109,6 +136,11 @@
       padding: 10px 0;
     }
     .list::-webkit-scrollbar { display: none; }
+    .poster-wrapper {
+      position: relative;
+      flex-shrink: 0;
+      display: inline-block;
+    }
     .list img {
       width: 200px;
       height: 300px;
@@ -116,12 +148,29 @@
       border-radius: 6px;
       cursor: pointer;
       transition: transform 0.4s ease, box-shadow 0.4s ease;
-      flex-shrink: 0;
     }
     .list img:hover {
       transform: scale(1.08);
       box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       z-index: 10;
+    }
+    .rating-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+    }
+    .rating-badge i {
+      color: #e87d0e;
     }
     /* Scroll Arrows */
     .scroll-left, .scroll-right {
@@ -280,6 +329,10 @@
       gap: 15px;
       justify-items: center;
     }
+    .search-results .poster-wrapper {
+      position: relative;
+      width: 100%;
+    }
     .search-results img {
       width: 100%;
       height: auto;
@@ -307,7 +360,22 @@
       font-size: 0.9rem;
     }
     /* Mobile Adjustments */
+    @media (max-width: 1024px) {
+      .categories {
+        gap: 15px;
+        font-size: 13px;
+      }
+    }
     @media (max-width: 768px) {
+      .nav-center {
+        display: none;
+      }
+      .navbar {
+        justify-content: space-between;
+      }
+      .nav-right input {
+        width: 150px;
+      }
       .banner { height: 60vh; }
       .banner-title { font-size: 2.5rem; }
       .banner-description { font-size: 1rem; }
@@ -320,42 +388,6 @@
       .modal-title { font-size: 2rem; }
       .modal-info { padding: 20px; }
       .modal-description { font-size: 1rem; }
-
-      /* Search modal specific optimizations */
-      .search-modal {
-        padding: 40px 4% 60px;
-      }
-      .search-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        margin-bottom: 30px;
-      }
-      .search-header .close {
-        align-self: flex-end;
-        font-size: 36px;
-        margin: 0;
-      }
-      .search-modal input {
-        width: 100%;
-        font-size: 1.8rem; /* Larger for easier typing/touch */
-        padding: 15px 0;
-      }
-      .search-row h2 {
-        font-size: 1.6rem;
-        margin-bottom: 15px;
-      }
-      .search-content {
-        max-width: none;
-      }
-      .search-results {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 20px;
-      }
-      .no-results {
-        font-size: 1.3rem;
-        padding: 40px;
-      }
     }
   </style>
 </head>
@@ -365,8 +397,21 @@
     <div class="logo">
       <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix">
     </div>
-    <div class="nav-links">
-      <input type="text" placeholder="Search..." onfocus="openSearchModal()" style="padding:8px 12px; border:none; border-radius:4px; background:#333; color:white; width:200px;">
+    <div class="nav-center">
+      <div class="categories">
+        <a onclick="scrollToRow('movies-list')">Trending Movies</a>
+        <a onclick="scrollToRow('tvshows-list')">Trending Shows</a>
+        <a onclick="scrollToRow('netflix-list')">Netflix</a>
+        <a onclick="scrollToRow('disney-list')">Disney</a>
+        <a onclick="scrollToRow('marvel-list')">Marvel</a>
+        <a onclick="scrollToRow('kdrama-list')">K-Drama</a>
+        <a onclick="scrollToRow('anime-list')">Anime</a>
+        <a onclick="scrollToRow('thriller-list')">Thriller</a>
+        <a onclick="scrollToRow('horror-list')">Horror</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <input type="text" placeholder="Search..." onfocus="openSearchModal()">
     </div>
   </div>
   <!-- Hero Banner -->
@@ -396,12 +441,64 @@
       <div class="scroll-right" onclick="scrollRow('tvshows-list', 400)"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
+  <!-- Netflix Shows Row -->
+  <div class="row">
+    <h2>Netflix Shows</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('netflix-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="netflix-list"></div>
+      <div class="scroll-right" onclick="scrollRow('netflix-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+  <!-- Disney Shows Row -->
+  <div class="row">
+    <h2>Disney Shows</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('disney-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="disney-list"></div>
+      <div class="scroll-right" onclick="scrollRow('disney-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+  <!-- Marvel Movies Row -->
+  <div class="row">
+    <h2>Marvel Movies</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('marvel-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="marvel-list"></div>
+      <div class="scroll-right" onclick="scrollRow('marvel-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+  <!-- New K-Drama Row -->
+  <div class="row">
+    <h2>K-Drama</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('kdrama-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="kdrama-list"></div>
+      <div class="scroll-right" onclick="scrollRow('kdrama-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
   <div class="row">
     <h2>Trending Anime</h2>
     <div class="row-container">
       <div class="scroll-left" onclick="scrollRow('anime-list', -400)"><i class="fas fa-chevron-left"></i></div>
       <div class="list" id="anime-list"></div>
       <div class="scroll-right" onclick="scrollRow('anime-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+  <div class="row">
+    <h2>Thriller Movies</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('thriller-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="thriller-list"></div>
+      <div class="scroll-right" onclick="scrollRow('thriller-list', 400)"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+  <div class="row">
+    <h2>Horror Movies</h2>
+    <div class="row-container">
+      <div class="scroll-left" onclick="scrollRow('horror-list', -400)"><i class="fas fa-chevron-left"></i></div>
+      <div class="list" id="horror-list"></div>
+      <div class="scroll-right" onclick="scrollRow('horror-list', 400)"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
   <!-- Player Modal -->
@@ -425,12 +522,10 @@
       <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
     </div>
     <div class="search-content">
-      <!-- Suggested when empty -->
       <div class="search-row" id="suggested-row">
         <h2>Popular Searches</h2>
         <div class="search-results" id="popular-searches"></div>
       </div>
-      <!-- Search results -->
       <div class="search-row" id="results-row" style="display:none;">
         <h2 id="results-title">Search Results</h2>
         <div class="search-results" id="search-results"></div>
@@ -447,13 +542,23 @@
     const IMG_URL = 'https://image.tmdb.org/t/p/original';
     let currentItem;
     let featuredItem;
+
     function scrollRow(id, amount) {
       document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
     }
+
+    function scrollToRow(containerId) {
+      const row = document.getElementById(containerId).closest('.row');
+      const navbarHeight = document.getElementById('navbar').offsetHeight;
+      const offset = row.getBoundingClientRect().top + window.scrollY - navbarHeight - 10;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+
     async function fetchTrending(type) {
       const res = await fetch(`${BASE_URL}/trending/${type}/week?api_key=${API_KEY}`);
       return (await res.json()).results;
     }
+
     async function fetchTrendingAnime() {
       let all = [];
       for (let p = 1; p <= 3; p++) {
@@ -463,28 +568,108 @@
       }
       return all;
     }
+
+    async function fetchThrillerMovies() {
+      const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=53&sort_by=vote_average.desc&vote_count.gte=100`);
+      return (await res.json()).results;
+    }
+
+    async function fetchHorrorMovies() {
+      const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=vote_average.desc&vote_count.gte=100`);
+      return (await res.json()).results;
+    }
+
+    async function fetchNetflixShows() {
+      let allShows = [];
+      const maxPages = 20;
+      for (let page = 1; page <= maxPages; page++) {
+        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=213&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
+        const data = await res.json();
+        if (data.results.length === 0) break;
+        allShows.push(...data.results);
+      }
+      return allShows;
+    }
+
+    async function fetchDisneyShows() {
+      let allShows = [];
+      const maxPages = 20;
+      for (let page = 1; page <= maxPages; page++) {
+        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_networks=2739&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
+        const data = await res.json();
+        if (data.results.length === 0) break;
+        allShows.push(...data.results);
+      }
+      return allShows;
+    }
+
+    async function fetchMarvelMovies() {
+      let allMovies = [];
+      const maxPages = 10;
+      for (let page = 1; page <= maxPages; page++) {
+        const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_keywords=180547&sort_by=release_date.desc&vote_count.gte=100&page=${page}`);
+        const data = await res.json();
+        if (data.results.length === 0) break;
+        allMovies.push(...data.results);
+      }
+      return allMovies;
+    }
+
+    // New function for K-Drama (Korean TV shows)
+    async function fetchKDrama() {
+      let all = [];
+      const maxPages = 20;
+      for (let page = 1; page <= maxPages; page++) {
+        const res = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_original_language=ko&sort_by=vote_average.desc&vote_count.gte=50&page=${page}`);
+        const data = await res.json();
+        if (data.results.length === 0) break;
+        all.push(...data.results);
+      }
+      return all;
+    }
+
     function displayBanner(item) {
       featuredItem = item;
       document.getElementById('banner').style.backgroundImage = `url(${IMG_URL}${item.backdrop_path})`;
       document.getElementById('banner-title').textContent = item.title || item.name;
       document.getElementById('banner-description').textContent = (item.overview || '').slice(0, 200) + (item.overview?.length > 200 ? '...' : '');
     }
+
     function playFeatured() {
       if (featuredItem) {
         showDetails(featuredItem);
       }
     }
+
+    function createPoster(item, clickHandler) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'poster-wrapper';
+
+      const img = document.createElement('img');
+      img.src = `${IMG_URL}${item.poster_path}`;
+      img.alt = item.title || item.name;
+      img.onclick = () => clickHandler(item);
+      wrapper.appendChild(img);
+
+      if (item.vote_average) {
+        const rating = document.createElement('div');
+        rating.className = 'rating-badge';
+        rating.innerHTML = `<i class="fas fa-star"></i> ${item.vote_average.toFixed(1)}`;
+        wrapper.appendChild(rating);
+      }
+
+      return wrapper;
+    }
+
     function displayList(items, containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       items.forEach(item => {
-        const img = document.createElement('img');
-        img.src = `${IMG_URL}${item.poster_path}`;
-        img.alt = item.title || item.name;
-        img.onclick = () => showDetails(item);
-        container.appendChild(img);
+        const poster = createPoster(item, showDetails);
+        container.appendChild(poster);
       });
     }
+
     function displaySearchResults(items, container) {
       container.innerHTML = '';
       if (items.length === 0) {
@@ -493,13 +678,11 @@
       }
       items.forEach(item => {
         if (!item.poster_path) return;
-        const img = document.createElement('img');
-        img.src = `${IMG_URL}${item.poster_path}`;
-        img.alt = item.title || item.name;
-        img.onclick = () => { closeSearchModal(); showDetails(item); };
-        container.appendChild(img);
+        const poster = createPoster(item, (it) => { closeSearchModal(); showDetails(it); });
+        container.appendChild(poster);
       });
     }
+
     function showDetails(item) {
       currentItem = item;
       document.getElementById('modal-title').textContent = item.title || item.name;
@@ -511,26 +694,29 @@
       iframe.src = url;
       document.getElementById('modal').style.display = 'flex';
     }
+
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
       document.getElementById('modal-video').src = '';
     }
+
     async function openSearchModal() {
       document.getElementById('search-modal').style.display = 'flex';
       document.getElementById('search-input').focus();
       document.getElementById('search-input').value = '';
       document.getElementById('results-row').style.display = 'none';
       document.getElementById('suggested-row').style.display = 'block';
-      // Load popular suggestions (trending mix)
       const movies = await fetchTrending('movie');
       const tv = await fetchTrending('tv');
       const popular = [...movies.slice(0,10), ...tv.slice(0,10)];
       displaySearchResults(popular, document.getElementById('popular-searches'));
     }
+
     function closeSearchModal() {
       document.getElementById('search-modal').style.display = 'none';
       document.getElementById('search-results').innerHTML = '';
     }
+
     async function searchTMDB() {
       const query = document.getElementById('search-input').value.trim();
       const resultsContainer = document.getElementById('search-results');
@@ -548,21 +734,37 @@
       resultsRow.style.display = 'block';
       suggestedRow.style.display = 'none';
     }
+
     async function init() {
       const movies = await fetchTrending('movie');
       const tv = await fetchTrending('tv');
       const anime = await fetchTrendingAnime();
+      const thrillers = await fetchThrillerMovies();
+      const horrors = await fetchHorrorMovies();
+      const netflixShows = await fetchNetflixShows();
+      const disneyShows = await fetchDisneyShows();
+      const marvelMovies = await fetchMarvelMovies();
+      const kdramas = await fetchKDrama();
+
       const randomMovie = movies[Math.floor(Math.random() * movies.length)];
       displayBanner(randomMovie);
       displayList(movies, 'movies-list');
       displayList(tv, 'tvshows-list');
+      displayList(netflixShows, 'netflix-list');
+      displayList(disneyShows, 'disney-list');
+      displayList(marvelMovies, 'marvel-list');
+      displayList(kdramas, 'kdrama-list');
       displayList(anime, 'anime-list');
+      displayList(thrillers, 'thriller-list');
+      displayList(horrors, 'horror-list');
+
       window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
-      // Attach search input listener
+
       document.getElementById('search-input').addEventListener('input', searchTMDB);
     }
+
     init();
   </script>
 </body>
