@@ -34,7 +34,7 @@
     }
 
     /* Player Loading Overlay */
-    #player-loading {
+    #player-loading, #player-page-loading {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -106,6 +106,18 @@
     }
 
     .modal-video-wrapper iframe.loaded {
+      opacity: 1;
+    }
+
+    #player-page iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 1.5s ease-in;
+    }
+
+    #player-page iframe.loaded {
       opacity: 1;
     }
 
@@ -476,6 +488,103 @@
       .modal-info { padding: 20px; }
       .modal-description { font-size: 1rem; }
     }
+    /* Details Page Styles */
+    #details-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #141414;
+      display: none;
+      overflow-y: auto;
+      z-index: 500;
+    }
+    .details-content {
+      padding: 100px 4% 50px;
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      gap: 40px;
+    }
+    #details-poster {
+      width: 300px;
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .details-info {
+      flex: 1;
+    }
+    #details-title {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+    }
+    #details-rating {
+      font-size: 1.8rem;
+      color: #e87d0e;
+      margin-bottom: 20px;
+    }
+    #details-description {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      color: #ccc;
+      margin-bottom: 40px;
+    }
+    .details-buttons {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .details-play-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      color: #000;
+    }
+    .details-play-btn:hover {
+      background: #e6e6e6;
+    }
+    .details-play-btn i {
+      font-size: 1.5rem;
+    }
+    .details-home-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(109,109,110,0.7);
+      color: #fff;
+    }
+    .details-home-btn:hover {
+      background: rgba(109,109,110,0.4);
+    }
+    .details-home-btn i {
+      font-size: 1.5rem;
+    }
+    /* Player Page Styles */
+    #player-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: none;
+      z-index: 600;
+    }
   </style>
 </head>
 <body>
@@ -598,48 +707,77 @@
         <div class="scroll-right" onclick="scrollRow('horror-list', 400)"><i class="fas fa-chevron-right"></i></div>
       </div>
     </div>
-    <!-- Player Modal -->
-    <div class="modal" id="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeModal()">×</span>
-        <div class="modal-video-wrapper">
-          <!-- Player Loading Overlay -->
-          <div id="player-loading">
-            <div class="loader">
-              <div class="loader-circle"></div>
-              <div class="loader-inner"></div>
-            </div>
-          </div>
-          <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
-        </div>
-        <div class="modal-info">
-          <h2 class="modal-title" id="modal-title"></h2>
-          <div class="stars" id="modal-rating"></div>
-          <p class="modal-description" id="modal-description"></p>
-        </div>
-      </div>
-    </div>
-    <!-- Search Modal -->
-    <div class="search-modal" id="search-modal">
-      <div class="search-header">
-        <span class="close" onclick="closeSearchModal()">×</span>
-        <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
-      </div>
-      <div class="search-content">
-        <div class="search-row" id="suggested-row">
-          <h2>Popular Searches</h2>
-          <div class="search-results" id="popular-searches"></div>
-        </div>
-        <div class="search-row" id="results-row" style="display:none;">
-          <h2 id="results-title">Search Results</h2>
-          <div class="search-results" id="search-results"></div>
-        </div>
-      </div>
-    </div>
     <!-- Footer -->
     <footer class="footer">
       <p>&copy; DailyFlix 2026. All rights reserved.</p>
     </footer>
+  </div>
+
+  <!-- Player Modal (kept for potential future use, but not used now) -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">×</span>
+      <div class="modal-video-wrapper">
+        <!-- Player Loading Overlay -->
+        <div id="player-loading">
+          <div class="loader">
+            <div class="loader-circle"></div>
+            <div class="loader-inner"></div>
+          </div>
+        </div>
+        <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
+      </div>
+      <div class="modal-info">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <div class="stars" id="modal-rating"></div>
+        <p class="modal-description" id="modal-description"></p>
+      </div>
+    </div>
+  </div>
+  <!-- Search Modal -->
+  <div class="search-modal" id="search-modal">
+    <div class="search-header">
+      <span class="close" onclick="closeSearchModal()">×</span>
+      <input type="text" id="search-input" placeholder="Search movies, TV shows, anime..." autofocus />
+    </div>
+    <div class="search-content">
+      <div class="search-row" id="suggested-row">
+        <h2>Popular Searches</h2>
+        <div class="search-results" id="popular-searches"></div>
+      </div>
+      <div class="search-row" id="results-row" style="display:none;">
+        <h2 id="results-title">Search Results</h2>
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Page -->
+  <div id="details-page">
+    <div class="details-content">
+      <img id="details-poster" alt="Poster">
+      <div class="details-info">
+        <h1 id="details-title"></h1>
+        <div id="details-rating" class="stars"></div>
+        <p id="details-description"></p>
+        <div class="details-buttons">
+          <button class="details-play-btn" onclick="playMovie()"><i class="fas fa-play"></i> Play</button>
+          <button class="details-home-btn" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Page -->
+  <div id="player-page">
+    <span class="close" onclick="closePlayer()">×</span>
+    <div id="player-page-loading">
+      <div class="loader">
+        <div class="loader-circle"></div>
+        <div class="loader-inner"></div>
+      </div>
+    </div>
+    <iframe id="player-iframe" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
   </div>
 
   <script>
@@ -801,30 +939,47 @@
 
     function showDetails(item) {
       currentItem = item;
-      document.getElementById('modal-title').textContent = item.title || item.name;
-      document.getElementById('modal-description').textContent = item.overview || 'No description available.';
-      document.getElementById('modal-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('search-modal').style.display = 'none';
+      const dp = document.getElementById('details-page');
+      dp.style.display = 'block';
+      document.getElementById('details-title').textContent = item.title || item.name || 'Untitled';
+      document.getElementById('details-description').textContent = item.overview || 'No description available.';
+      document.getElementById('details-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
+      document.getElementById('details-poster').src = `${IMG_POSTER}${item.poster_path}`;
+    }
 
-      const type = currentItem.title ? "movie" : "tv";
-      const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
+    function goHome() {
+      document.getElementById('details-page').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-      const iframe = document.getElementById('modal-video');
-      const playerLoading = document.getElementById('player-loading');
-
+    function playMovie() {
+      document.getElementById('details-page').style.display = 'none';
+      const pp = document.getElementById('player-page');
+      pp.style.display = 'block';
+      const playerLoading = document.getElementById('player-page-loading');
+      const iframe = document.getElementById('player-iframe');
       iframe.src = '';
       iframe.classList.remove('loaded');
       playerLoading.style.opacity = '1';
-
-      document.getElementById('modal').style.display = 'flex';
-
+      const type = currentItem.title ? "movie" : "tv";
+      const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
       iframe.src = url;
-
       iframe.onload = () => {
         playerLoading.style.opacity = '0';
         setTimeout(() => {
           iframe.classList.add('loaded');
         }, 300);
       };
+    }
+
+    function closePlayer() {
+      document.getElementById('player-page').style.display = 'none';
+      document.getElementById('player-iframe').src = '';
+      document.getElementById('player-iframe').classList.remove('loaded');
+      document.getElementById('details-page').style.display = 'block';
     }
 
     function closeModal() {
@@ -927,4 +1082,3 @@
   </script>
 </body>
 </html>
-
