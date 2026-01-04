@@ -60,18 +60,6 @@
       animation: spin 1.2s linear infinite;
     }
 
-    .loader-inner {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      width: 76px;
-      height: 76px;
-      border: 8px solid transparent;
-      border-top-color: #e50914;
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite reverse;
-    }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -590,7 +578,6 @@
   <div id="loading-screen">
     <div class="loader">
       <div class="loader-circle"></div>
-      <div class="loader-inner"></div>
     </div>
   </div>
 
@@ -707,7 +694,7 @@
     </div>
     <!-- Footer -->
     <footer class="footer">
-      <p>&copy; DailyFlix 2026. All rights reserved.</p>
+      <p>© DailyFlix 2026. All rights reserved.</p>
     </footer>
   </div>
 
@@ -720,7 +707,6 @@
         <div id="player-loading">
           <div class="loader">
             <div class="loader-circle"></div>
-            <div class="loader-inner"></div>
           </div>
         </div>
         <iframe id="modal-video" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
@@ -772,7 +758,6 @@
     <div id="player-page-loading">
       <div class="loader">
         <div class="loader-circle"></div>
-        <div class="loader-inner"></div>
       </div>
     </div>
     <iframe id="player-iframe" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation"></iframe>
@@ -1080,8 +1065,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
