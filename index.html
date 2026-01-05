@@ -985,6 +985,21 @@
         console.log('Fullscreen request failed:', err);
       }
     }
+    async function exitFullscreen() {
+      try {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          await document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+          await document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          await document.msExitFullscreen();
+        }
+      } catch (err) {
+        console.log('Exit fullscreen failed:', err);
+      }
+    }
     function playMovie() {
       document.getElementById('details-page').style.display = 'none';
       const pp = document.getElementById('player-page');
@@ -1007,7 +1022,8 @@
         }, 300);
       };
     }
-    function closePlayer() {
+    async function closePlayer() {
+      await exitFullscreen();
       document.getElementById('player-page').style.display = 'none';
       document.getElementById('player-iframe').src = '';
       document.getElementById('player-iframe').classList.remove('loaded');
