@@ -214,6 +214,7 @@
       scroll-behavior: smooth;
       gap: 10px;
       padding: 10px 0;
+      -webkit-overflow-scrolling: touch;
     }
     .list::-webkit-scrollbar { display: none; }
     .poster-wrapper {
@@ -449,6 +450,10 @@
       .banner { height: 60vh; }
       .banner-title { font-size: 2.5rem; }
       .banner-description { font-size: 1rem; }
+      .banner-buttons button {
+        padding: 10px 20px;
+        font-size: 1rem;
+      }
       .list img { width: 140px; height: 210px; }
       .scroll-left, .scroll-right { display: none; }
       .modal-content {
@@ -458,6 +463,80 @@
       .modal-title { font-size: 2rem; }
       .modal-info { padding: 20px; }
       .modal-description { font-size: 1rem; }
+      .details-content {
+        flex-direction: column;
+        align-items: center;
+        padding: 80px 4% 40px;
+        gap: 30px;
+      }
+      #details-poster {
+        width: 60%;
+        max-width: 250px;
+      }
+      #details-title {
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #details-description {
+        text-align: center;
+      }
+      .details-buttons {
+        justify-content: center;
+      }
+      .row h2 {
+        font-size: 1.4rem;
+      }
+      .row {
+        padding: 0 2%;
+      }
+      .footer {
+        padding: 40px 2%;
+      }
+    }
+    @media (max-width: 480px) {
+      .banner {
+        height: 50vh;
+      }
+      .banner-title {
+        font-size: 2rem;
+      }
+      .banner-description {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+      .banner-buttons button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        gap: 5px;
+      }
+      .banner-buttons button i {
+        font-size: 1.2rem;
+      }
+      .list img {
+        width: 120px;
+        height: 180px;
+      }
+      .search-header input {
+        font-size: 1.2rem;
+      }
+      .search-row h2 {
+        font-size: 1.3rem;
+      }
+      .search-results {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+      }
+      .no-results {
+        font-size: 1.2rem;
+        padding: 30px;
+      }
+      .details-play-btn, .details-home-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+      }
+      .details-play-btn i, .details-home-btn i {
+        font-size: 1.2rem;
+      }
     }
     /* Details Page Styles */
     #details-page {
