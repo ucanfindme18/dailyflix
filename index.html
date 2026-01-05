@@ -820,7 +820,7 @@
         <div class="loader-circle"></div>
       </div>
     </div>
-    <iframe id="player-iframe" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+    <iframe id="player-iframe" frameborder="0" allow="fullscreen" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
   </div>
   <script>
     const API_KEY = 'a1e72fd93ed59f56e6332813b9f8dcae';
@@ -967,15 +967,19 @@
       document.getElementById('main-content').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function enterFullscreen(element) {
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-      } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-      } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
+    async function enterFullscreen(element) {
+      try {
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+          await element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+          await element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        } else if (element.msRequestFullscreen) {
+          await element.msRequestFullscreen();
+        }
+      } catch (err) {
+        console.log('Fullscreen request failed:', err);
       }
     }
     function playMovie() {
@@ -990,13 +994,13 @@
       const type = currentItem.title ? "movie" : "tv";
       const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
       iframe.src = url;
-      if (window.matchMedia("(max-width: 768px)").matches) {
-        enterFullscreen(iframe);
-      }
       iframe.onload = () => {
         playerLoading.style.opacity = '0';
         setTimeout(() => {
           iframe.classList.add('loaded');
+          if (window.matchMedia("(max-width: 768px)").matches) {
+            enterFullscreen(document.getElementById('player-page'));
+          }
         }, 300);
       };
     }
@@ -1087,6 +1091,10 @@
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
       });
       document.getElementById('search-input').addEventListener('input', searchTMDB);
+      // Enforce full screen on mobile for home page
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        await enterFullscreen(document.documentElement);
+      }
     }
     init();
   </script>
