@@ -4,13 +4,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DailyFlix</title>
+  <title>DailyFlix - Free Movies, TV Shows, Anime Streaming Online</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="icon" href="https://dailyflix.online/favicon.ico" type="image/x-icon">
   <!-- PWA Additions -->
   <meta name="theme-color" content="#141414">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Watch free movies, TV shows, anime, Netflix originals, Disney, Marvel, K-Drama, thrillers, and horror online on DailyFlix. Stream trending content in HD without subscription.">
+  <meta name="keywords" content="free movies streaming, watch TV shows online, free anime streaming, Netflix shows, Disney movies, Marvel films, K-Drama, thriller movies, horror films, online streaming platform">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="DailyFlix">
+  <!-- Open Graph Tags for Social Sharing -->
+  <meta property="og:title" content="DailyFlix - Free Movies, TV Shows, Anime Streaming Online">
+  <meta property="og:description" content="Discover and stream trending movies, TV series, anime, and more for free on DailyFlix. Enjoy high-quality content from Netflix, Disney, Marvel, and beyond.">
+  <meta property="og:image" content="https://i.imgur.com/izPYpmZ.png">
+  <meta property="og:url" content="https://dailyflix.online/">
+  <meta property="og:type" content="website">
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DailyFlix - Free Movies, TV Shows, Anime Streaming Online">
+  <meta name="twitter:description" content="Stream free movies, TV shows, anime, and more on DailyFlix. No subscription required.">
+  <meta name="twitter:image" content="https://i.imgur.com/izPYpmZ.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -654,7 +670,7 @@
     <!-- Navbar -->
     <div class="navbar" id="navbar">
       <div class="logo">
-        <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix">
+        <img src="https://i.imgur.com/izPYpmZ.png" alt="DailyFlix Logo - Free Streaming Platform">
       </div>
       <div class="nav-center">
         <div class="categories">
@@ -805,7 +821,7 @@
   <!-- Details Page -->
   <div id="details-page">
     <div class="details-content">
-      <img id="details-poster" alt="Poster">
+      <img id="details-poster" alt="Movie or TV Show Poster">
       <div class="details-info">
         <h1 id="details-title"></h1>
         <div id="details-rating" class="stars"></div>
@@ -923,7 +939,7 @@
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.src = `${IMG_POSTER}${item.poster_path}`;
-      img.alt = item.title || item.name;
+      img.alt = `${item.title || item.name} Poster - Watch on DailyFlix`;
       img.onclick = () => clickHandler(item);
       wrapper.appendChild(img);
       if (item.vote_average) {
@@ -966,6 +982,7 @@
       document.getElementById('details-description').textContent = item.overview || 'No description available.';
       document.getElementById('details-rating').innerHTML = '★'.repeat(Math.round((item.vote_average || 0) / 2));
       document.getElementById('details-poster').src = `${IMG_POSTER}${item.poster_path}`;
+      document.getElementById('details-poster').alt = `${item.title || item.name} Poster - Stream on DailyFlix`;
     }
     function goHome() {
       document.getElementById('details-page').style.display = 'none';
