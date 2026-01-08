@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -991,6 +992,7 @@
       iframe.src = '';
       iframe.classList.remove('loaded');
       playerLoading.style.opacity = '1';
+      const loadingStart = Date.now();
       const type = currentItem.title ? "movie" : "tv";
       const url = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
       iframe.src = url;
@@ -998,10 +1000,14 @@
         enterFullscreen(iframe);
       }
       iframe.onload = () => {
-        playerLoading.style.opacity = '0';
+        const timePassed = Date.now() - loadingStart;
+        const delay = Math.max(0, 7000 - timePassed);
         setTimeout(() => {
-          iframe.classList.add('loaded');
-        }, 300);
+          playerLoading.style.opacity = '0';
+          setTimeout(() => {
+            iframe.classList.add('loaded');
+          }, 300);
+        }, delay);
       };
     }
     function closePlayer() {
@@ -1107,3 +1113,4 @@
   </script>
 </body>
 </html>
+```
