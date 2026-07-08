@@ -1011,7 +1011,7 @@
       playerLoading.style.opacity = '1';
       const loadingStart = Date.now();
       const type = currentItem.title ? "movie" : "tv";
-      const url = `https://vidlink.pro/movie/${type}/${currentItem.id}`;
+      const url = `https://vidlink.pro/${type}/${currentItem.id}`;
       iframe.src = url;
       if (window.matchMedia("(max-width: 768px)").matches) {
         enterFullscreen(iframe);
